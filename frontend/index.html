@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planilla de Obra — Vivero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<section id="vista-login" class="vista vista-login">
+  <div class="login-card">
+    <div class="login-marca">
+      <span class="login-marca-icono">⁘</span>
+      <div>
+        <h1>Planilla de Obra</h1>
+        <p class="login-sub">Gestión de personal y tareas — vivero</p>
+      </div>
+    </div>
+    <form id="form-login">
+      <label>Nombre de Usuario
+        <!-- Cambiado: type="text", id="login-username" y el placeholder -->
+        <input type="text" id="login-username" required autocomplete="username" placeholder="ingrese su usuario">
+      </label>
+      <label>Contraseña
+        <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••">
+      </label>
+      <p id="login-error" class="mensaje-error" hidden></p>
+      <button type="submit" class="btn btn-primario btn-ancho">Ingresar</button>
+    </form>
+    <p class="login-nota">Los empleados no tienen usuario propio: el encargado les habilita su tarea del día desde "Mis tareas".</p>
+  </div>
+</section>
+
+<section id="vista-app" class="vista vista-app" hidden>
+  <aside class="sidebar">
+    <div class="sidebar-marca">
+      <span class="login-marca-icono">⁘</span>
+      <span>Planilla de Obra</span>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-usuario">
+      <div>
+        <strong id="usuario-nombre"></strong>
+        <span id="usuario-rol" class="badge-rol"></span>
+      </div>
+      <button id="btn-logout" class="btn btn-texto">Salir</button>
+    </div>
+  </aside>
+
+  <main class="contenido" id="contenido">
+  </main>
+</section>
+
+<section id="vista-empleado-overlay" class="vista-empleado-overlay" hidden>
+  <div class="empleado-header">
+    <span id="empleado-header-titulo">Cargando…</span>
+    <button id="btn-volver-encargado" class="btn btn-volver">← Volver al encargado</button>
+  </div>
+  <div class="empleado-body" id="empleado-body"></div>
+</section>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
