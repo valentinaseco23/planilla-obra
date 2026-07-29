@@ -1,108 +1,53 @@
 const express = require('express');
-const pool = require('../config/db');
-const { requireAuth, requireRole } = require('../middleware/auth');
-const { registrarAuditoria } = require('../middleware/auditoria');
-
 const router = express.Router();
+const pool = require('../config/db');
+const { requireAuth } = require('../middleware/auth');
 
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      `SELECT id, tipo, codigo, area_padre_id, activo
-       FROM area
-       WHERE activo = TRUE
-       ORDER BY tipo, area_padre_id NULLS FIRST, codigo`
-    );
-
-    const porId = new Map(rows.map((a) => [a.id, { ...a, subareas: [] }]));
-    const raiz = [];
-    for (const area of porId.values()) {
-      if (area.area_padre_id) {
-        const padre = porId.get(area.area_padre_id);
-        if (padre) padre.subareas.push(area);
-      } else {
-        raiz.push(area);
-      }
-    }
-
-    res.json(raiz);
+    const { rows } = await pool.query(`
+      SELECT a.*, 
+             COALESCE(
+                 (SELECT json_agg(json_build_object(
+                     'id_tarea', t.id, 
+                     'nombre', t.nombre, 
+                     'tipo_formulario', t.tipo_formulario
+                 ))
+                  FROM area_tarea at
+                  JOIN tarea t ON t.id = at.tarea_id
+                  WHERE at.area_id = a.id),
+                 '[]'::json
+             ) AS tareas_preasignadas
+      FROM area a
+      ORDER BY 
+        -- 1. Orden personalizado de tipos (camara, invernadero, planta_madre, etc.)
+        CASE a.tipo
+          WHEN 'camara' THEN 1
+          WHEN 'invernadero' THEN 2
+          WHEN 'planta_madre' THEN 3
+          WHEN 'terceros' THEN 4
+          WHEN 'rusticadero' THEN 5
+          WHEN 'plantado' THEN 6
+          WHEN 'picado' THEN 7
+          WHEN 'logistica' THEN 8
+          WHEN 'procesamiento' THEN 9
+          WHEN 'transicion' THEN 10
+          ELSE 11
+        END ASC,
+        -- 2. Las áreas generales/agrupantes (como "Cámaras" o "Invernaderos") van siempre primero en su categoría
+        CASE 
+          WHEN a.nombre ILIKE '%cámaras%' OR a.nombre ILIKE '%invernaderos%' THEN 1
+          ELSE 2
+        END ASC,
+        -- 3. Orden numérico natural para el resto (Invernadero 2 antes que el 10)
+        NULLIF(regexp_replace(a.nombre, '[^0-9]', '', 'g'), '')::INTEGER ASC NULLS FIRST,
+        -- 4. Orden alfabético de respaldo por si no tienen número
+        a.nombre ASC;
+    `);
+    res.json(rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al listar áreas' });
-  }
-});
-
-router.post('/', requireAuth, requireRole('admin'), async (req, res) => {
-  const { tipo, codigo, area_padre_id } = req.body;
-  if (!tipo || !codigo) {
-    return res.status(400).json({ error: 'tipo y codigo son requeridos' });
-  }
-
-  try {
-    const { rows } = await pool.query(
-      `INSERT INTO area (tipo, codigo, area_padre_id) VALUES ($1, $2, $3) RETURNING *`,
-      [tipo, codigo, area_padre_id || null]
-    );
-    await registrarAuditoria({
-      tabla: 'area',
-      registroId: rows[0].id,
-      accion: 'alta',
-      usuarioId: req.usuario.id,
-      detalle: rows[0],
-    });
-    res.status(201).json(rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al crear área' });
-  }
-});
-
-router.put('/:id', requireAuth, requireRole('admin'), async (req, res) => {
-  const { id } = req.params;
-  const { tipo, codigo, area_padre_id, activo } = req.body;
-
-  try {
-    const { rows } = await pool.query(
-      `UPDATE area SET tipo = COALESCE($1::tipo_area, tipo), codigo = COALESCE($2, codigo),
-              area_padre_id = $3, activo = COALESCE($4, activo)
-       WHERE id = $5 RETURNING *`,
-      [tipo, codigo, area_padre_id, activo, id]
-    );
-    if (!rows[0]) return res.status(404).json({ error: 'Área no encontrada' });
-
-    await registrarAuditoria({
-      tabla: 'area',
-      registroId: id,
-      accion: 'edicion',
-      usuarioId: req.usuario.id,
-      detalle: rows[0],
-    });
-    res.json(rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al actualizar área' });
-  }
-});
-
-router.delete('/:id', requireAuth, requireRole('admin'), async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { rows } = await pool.query(
-      `UPDATE area SET activo = FALSE WHERE id = $1 RETURNING id`,
-      [id]
-    );
-    if (!rows[0]) return res.status(404).json({ error: 'Área no encontrada' });
-
-    await registrarAuditoria({
-      tabla: 'area',
-      registroId: id,
-      accion: 'borrado',
-      usuarioId: req.usuario.id,
-    });
-    res.status(204).send();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error al eliminar área' });
+    console.error('Error al obtener áreas:', err);
+    res.status(500).json({ error: 'Error al obtener las áreas' });
   }
 });
 

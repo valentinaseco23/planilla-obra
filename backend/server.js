@@ -21,7 +21,7 @@ app.use('/personal', personalRoutes);
 app.use('/tareas', tareasRoutes);
 
 app.use('/', tareasPreasignadasRoutes);
-app.use('/', avanceDiarioRoutes);
+app.use('/dashboard', avanceDiarioRoutes);
 app.use('/', licenciasRoutes);
 
 app.get('/health', (req, res) => res.json({ ok: true }));

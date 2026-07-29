@@ -1,16 +1,16 @@
 const { Pool } = require('pg');
-require('dotenv').config();
+const env = require('./env');
 
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'planilla_obra',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
+  user: env.db.user,
+  host: env.db.host,
+  database: env.db.database,
+  password: env.db.password,
+  port: env.db.port,
 });
 
-pool.on('error', (err) => {
-  console.error('Error inesperado en el pool de PostgreSQL:', err);
-});
+pool.connect()
+  .then(() => console.log(`🟢 Conectado a PostgreSQL (${env.db.database})`))
+  .catch(err => console.error('🔴 Error conectando a PostgreSQL', err.stack));
 
 module.exports = pool;
