@@ -1,9 +1,9 @@
 module.exports = {
   db: {
-    user: 'postgres',
-    host: 'localhost',
-    database: 'planilla_obra',
-    password: '12345678',
-    port: 5432,
+    user: process.env.PGUSER || 'postgres',
+    host: process.env.PGHOST || 'localhost',
+    database: process.env.PGDATABASE || 'planilla_obra',
+    password: process.env.PGPASSWORD || '12345678',
+    port: process.env.PGPORT || 5432,
   },
 };
