@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --verde-950: #14261c;
   --verde-800: #1f3d2e;
   --verde-600: #33604a;
@@ -61,11 +61,23 @@ a { color: var(--verde-600); }
   box-shadow: var(--sombra);
 }
 
-.login-marca { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
-.login-marca-icono {
-  font-size: 26px; color: var(--dorado-oscuro);
-  width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
-  background: var(--verde-100); border-radius: 10px;
+.login-marca { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 28px; text-align: center; }
+.marca-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.marca-logo svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.marca-logo-grande {
+  width: 150px;
+}
+.marca-logo-chica {
+  width: 34px;
+  flex-shrink: 0;
 }
 .login-marca h1 { font-size: 20px; }
 .login-sub { margin: 2px 0 0; color: var(--tinta-suave); font-size: 13px; }
@@ -128,8 +140,9 @@ tr:last-child td { border-bottom: none; }
 
 .chip { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 500; font-family: var(--fuente-mono); }
 .chip-area { background: var(--verde-100); color: var(--verde-800); }
-.chip-condicion-planta { background: #fff; border: 1px solid var(--tinta); color: var(--tinta); }
-.chip-condicion-contratado { background: var(--tinta); color: white; }
+.chip-condicion-planta { background: var(--verde-600); color: white; }
+.chip-condicion-en_planta { background: var(--verde-600); color: white; }
+.chip-condicion-contratado { background: var(--dorado-oscuro); color: white; }
 .chip-disponible { background: #e5f3e8; color: #276e3e; }
 .chip-licencia, .chip-licencia_maternidad, .chip-rto { background: #fdeee0; color: #9c5a1a; }
 .chip-asignado_a_otra_tarea { background: #fdecea; color: var(--rojo); }

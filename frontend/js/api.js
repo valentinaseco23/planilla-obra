@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'https://planilla-obra-production.up.railway.app';
 
 const Api = {
   token() {
@@ -47,16 +47,20 @@ const Api = {
   getTarea(id) { return this.request(`/tareas/${id}`); },
   crearTarea(datos) { return this.request('/tareas', { method: 'POST', body: datos }); },
   actualizarTarea(id, datos) { return this.request(`/tareas/${id}`, { method: 'PUT', body: datos }); },
+  getPlanificacion() { return this.request('/tareas/planificacion'); },
 
-  crearAvanceDiario(tareaId, datos) { return this.request(`/tareas/${tareaId}/avance-diario`, { method: 'POST', body: datos }); },
+  crearAvanceDiario(tareaId, datos) { return this.request(`/tareas/${tareaId}/avance`, { method: 'POST', body: datos }); },
   getAvanceDiario(tareaId, fecha) {
     const q = fecha ? `?fecha=${fecha}` : '';
-    return this.request(`/tareas/${tareaId}/avance-diario${q}`);
+    return this.request(`/tareas/${tareaId}/avance${q}`);
   },
   getDashboardAvance(fecha) { return this.request(`/dashboard/avance-diario?fecha=${fecha}`); },
 
   getDisponibilidad(fecha) { return this.request(`/personal/disponibilidad?fecha=${fecha}`); },
   crearLicencia(datos) { return this.request('/licencias', { method: 'POST', body: datos }); },
+  getHistorialTareas(personalId, fechaInicio, fechaFin) {
+    return this.request(`/personal/${personalId}/historial-tareas?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`);
+  },
 
   getVistaEmpleado(tareaId, personalId) { return this.request(`/tareas/${tareaId}/vista-empleado?personal_id=${personalId}`); },
   guardarAvanceEmpleado(tareaId, datos) { return this.request(`/tareas/${tareaId}/vista-empleado/avance`, { method: 'POST', body: datos }); },
